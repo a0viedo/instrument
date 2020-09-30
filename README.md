@@ -53,6 +53,8 @@ In case "summary" property is set to `true`, then also prints a frequency indica
 If you want to avoid printing the output to `stdout` you can specify a file to be used for logging.
 #### modules
 It accepts an array of the native modules you want to be instrumented. Default values are `["child_process","http","https","fs","require"]`.
+#### runtimeLogs
+Enables or disables the logging at runtime for instrumented calls. Default value is `false`.
 
 ## License
 MIT

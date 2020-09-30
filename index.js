@@ -22,7 +22,8 @@ const config = {
     https: true,
     child_process: true,
     require: true
-  }
+  },
+  runtimeLogs: false
 };
 let logStream;
 const treeRootName = process.argv[1];
@@ -90,11 +91,10 @@ function track(trigger, str) {
       summaryMap[module][method] = [];
     }
     summaryMap[module][method].push(str);
-
-    // TODO: evaluate if it makes sense for summary to be mutually exclusive to logs during runtime
-    return;
   }
-  log(`${trigger} | ${str}`);
+  if(config.runtimeLogs) {
+    log(`${trigger} | ${str}`);
+  }
 }
 
 function isDependency(trigger, path) {
