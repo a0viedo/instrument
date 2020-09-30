@@ -279,7 +279,7 @@ function instrumentFs() {
   }
   const origReadFileSync = fs.readFileSync;
   fs.readFileSync = (path, options) => {
-    track('fs.readFileSync', path, options);
+    track('fs.readFileSync', path);
     return origReadFileSync(path, options);
   }
 
@@ -590,10 +590,10 @@ module.exports = function (configParams) {
       });
 
       graphData.name = treeRootName;
-      formatOutput(graphData)
+      formatOutput(graphData);
       const outputContent = JSON.stringify(graphData);
 
       origWriteFileSync(path.resolve(origCwd, config.requireTreeOutput), outputContent, { encoding: 'utf8' });
     }
   });
-}
+};

@@ -1,6 +1,7 @@
 # Instrument
 
 [![npm](https://img.shields.io/npm/v/instrument)](https://www.npmjs.com/package/instrument)
+![node-current](https://img.shields.io/node/v/instrument)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/a0viedo/instrument/blob/master/LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
 
