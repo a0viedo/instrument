@@ -1,6 +1,6 @@
 {
   "name": "instrument",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Tool to capture calls to Node.js native modules",
   "main": "index.js",
   "scripts": {
