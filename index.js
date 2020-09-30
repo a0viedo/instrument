@@ -84,7 +84,6 @@ function track(trigger, str) {
       if (!summaryMap[module]) {
         summaryMap[module] = [];
       }
-      debugger;
       summaryMap[module].push(str);
     }
     if (!summaryMap[module][method]) {
