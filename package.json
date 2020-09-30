@@ -1,0 +1,29 @@
+{
+  "name": "instrument",
+  "version": "1.0.4",
+  "description": "Tool to capture calls to Node.js native modules",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 0"
+  },
+  "keywords": [
+    "instrumentation",
+    "tooling"
+  ],
+  "author": "Alejandro Oviedo <alejandro.oviedo.g@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "json-colorizer": "^2.2.2",
+    "tree-model": "^1.0.7"
+  },
+  "engines": {
+    "node": ">= 8"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/a0viedo/instrument.git"
+  },
+  "bugs": {
+    "url": "http://github.com/a0viedo/instrument/issues"
+  }
+}
