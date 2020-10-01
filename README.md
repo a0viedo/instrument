@@ -4,6 +4,7 @@
 ![node-current](https://img.shields.io/node/v/instrument)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/a0viedo/instrument/blob/master/LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
+[![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/a0viedo/instrument.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/a0viedo/instrument/context:javascript)
 
 A tool that collects information about calls made to Node.js native modules.
 
