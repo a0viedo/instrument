@@ -23,7 +23,8 @@ const config = {
     child_process: true,
     require: true
   },
-  runtimeLogs: false
+  runtimeLogs: false,
+  serializers: {}
 };
 let logStream;
 const treeRootName = process.argv[1];
@@ -52,14 +53,20 @@ function resolveRequest(request, parent) {
   }
 
   if (isNodeModulesTarget(request)) {
+    let paths = [];
+    if(parent && parent.paths) {
+      paths = parent.paths
+    }
+
+    paths.push(
+      // fs.realpathSync fails for files without extensions...but without it, the function won't work for resolving symlinks
+      path.dirname(process.argv[1]), // path for the file we're currently running
+      path.dirname(parent && parent.id || ''), // path for where this dependency is coming from (npm flattens the node_modules directory when it can, but there are still cases for when it's nested)
+      ...require.resolve.paths(request)
+    );
+
     // if the target is a node module, then to resolve we need to load its package.json and use the "main" property...require.resolve does this for us
-    return require.resolve(request, {
-      paths: [
-        // fs.realpathSync fails for files without extensions...but without it, the function won't work for resolving symlinks
-        path.dirname(process.argv[1]), // path for the file we're currently running
-        path.dirname(parent && parent.id || ''), // path for where this dependency is coming from (npm flattens the node_modules directory when it can, but there are still cases for when it's nested)
-        ...require.resolve.paths(request)]
-    });
+    return require.resolve(request, { paths });
   }
   return path.resolve(parent && parent.filename, '..', request);
 }
@@ -70,8 +77,8 @@ function firstNodeFn(treePath, node) {
     || node.model.path === treePath.replace(path.extname(treePath), '');
 }
 
-function track(trigger, str) {
-  if (config.dependencies === false && isDependency(trigger, str)) {
+function track(trigger, logStatement, defaultSerializer) {
+  if (config.dependencies === false && isDependency(trigger, logStatement)) {
     return;
   }
 
@@ -85,15 +92,43 @@ function track(trigger, str) {
       if (!summaryMap[module]) {
         summaryMap[module] = [];
       }
-      summaryMap[module].push(str);
+
+      if(typeof logStatement === 'object') {
+        if(config.serializers[module]) {
+          summaryMap[module].push(config.serializers[module](...logStatement));
+        } else {
+          summaryMap[module].push(defaultSerializer(logStatement));
+        }
+      } else {
+        summaryMap[module].push(logStatement);
+      }
+
     }
     if (!summaryMap[module][method]) {
       summaryMap[module][method] = [];
     }
-    summaryMap[module][method].push(str);
+
+    if(typeof logStatement === 'object') {
+      if(config.serializers[module]) {
+        summaryMap[module][method].push(config.serializers[module](...logStatement));
+      } else {
+        summaryMap[module][method].push(defaultSerializer(logStatement));
+      }
+    } else {
+      summaryMap[module][method].push(logStatement);
+    }
   }
   if(config.runtimeLogs) {
-    log(`${trigger} | ${str}`);
+    if(typeof logStatement === 'string') {
+      log(`${trigger} | ${logStatement}`);
+    }
+    if(typeof logStatement === 'object') {
+      if(config.serializers[module]) {
+        log(config.serializers[module](...logStatement))
+      } else {
+        log(defaultSerializer(logStatement))
+      }
+    }
   }
 }
 
@@ -214,7 +249,7 @@ function extractHTTPPropertiesFromOptions(options, alternativeOptions, protocol)
   if (typeof options === 'string') {
     return {
       path: options,
-      alternativeOptions
+      ...alternativeOptions
     };
   }
 }
@@ -435,8 +470,10 @@ function instrumentChildProcess() {
 function instrumentHttp() {
   const originalHTTPRequest = http.request;
   http.request = (...params) => {
-    const { path, method } = extractHTTPPropertiesFromOptions(params[0], params[1], 'http:');
-    track('http.request', `${method.toUpperCase()} ${path}`);
+    track('http.request', params, (passedParams) => {
+      const { path, method } = extractHTTPPropertiesFromOptions(passedParams[0], passedParams[1], 'http:');
+      return `${method.toUpperCase()} ${path}`;
+    });
     return originalHTTPRequest(...params);
   };
 }
@@ -444,8 +481,10 @@ function instrumentHttp() {
 function instrumentHttps() {
   const originalHTTPSRequest = https.request;
   https.request = (...params) => {
-    const { path, method } = extractHTTPPropertiesFromOptions(params[0], params[1], 'https:');
-    track('https.request', `${method.toUpperCase()} ${path}`);
+    track('https.request', params, passedParams => {
+      const { path, method } = extractHTTPPropertiesFromOptions(passedParams[0], passedParams[1], 'https:');
+      return `${method.toUpperCase()} ${path}`;
+    });
     return originalHTTPSRequest(...params);
   };
 }
